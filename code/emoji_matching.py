@@ -46,7 +46,7 @@ def encode_text(text, tokenizer, model, device):
     return outputs.last_hidden_state.mean(dim=1).detach().cpu().numpy()
 
 # 寻找最匹配的表情符号函数
-def find_best_match(input_text, data, tokenizer, model, device):
+def find_best_match(input_text, data, tokenizer, model, device, description_embeddings):
     print("Encoding input text...")
     input_embedding = encode_text(input_text, tokenizer, model, device)
     
@@ -54,10 +54,8 @@ def find_best_match(input_text, data, tokenizer, model, device):
     highest_similarity = float('-inf')
     
     print("Finding best match...")
-    for item in tqdm(data, desc="Processing descriptions"):
-        description = item['content']
-        description_embedding = encode_text(description, tokenizer, model, device)
-        similarity = np.dot(input_embedding, description_embedding.T).item()
+    for i, item in enumerate(tqdm(data, desc="Processing descriptions")):
+        similarity = np.dot(input_embedding, description_embeddings[i].T).item()
         
         if similarity > highest_similarity:
             highest_similarity = similarity
@@ -68,8 +66,9 @@ def find_best_match(input_text, data, tokenizer, model, device):
 if __name__ == "__main__":
     json_path = "../emo-visual-data/data.json"
     image_folder = "../emo-visual-data/emo"
-    features_path = "../model/emo_features.npy"
-    filenames_path = "../model/emo_filenames.npy"
+    features_path = "../model/features.npy"
+    filenames_path = "../model/filenames.npy"
+    description_embeddings_path = "../model/description_embeddings.npy"
     ak = "EPQ2BDPM3AWRYOEBPVMJ"  # 这里替换为您的华为云 AK
     sk = "XEfYiba9yFUXLMc27aLI86MnVM9krZuLPoXcLvDT"  # 这里替换为您的华为云 SK
 
@@ -78,8 +77,8 @@ if __name__ == "__main__":
     print("Data loaded.")
 
     print("Loading tokenizer and model...")
-    tokenizer = BertTokenizer.from_pretrained('bert-base-chinese', cache_dir='./cache',local_files_only=True)
-    text_model = BertModel.from_pretrained('bert-base-chinese', cache_dir='./cache',local_files_only=True)
+    tokenizer = BertTokenizer.from_pretrained('bert-base-chinese', cache_dir='./cache', local_files_only=True)
+    text_model = BertModel.from_pretrained('bert-base-chinese', cache_dir='./cache', local_files_only=True)
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     text_model.to(device)
@@ -90,15 +89,16 @@ if __name__ == "__main__":
     model.eval()
 
     # 加载提取的图像特征和文件名
-    print("Loading pre-extracted features and filenames...")
+    print("Loading pre-extracted features, filenames and description embeddings...")
     features = np.load(features_path)
     filenames = np.load(filenames_path)
-    print("Features and filenames loaded.")
+    description_embeddings = np.load(description_embeddings_path)
+    print("Features, filenames and description embeddings loaded.")
 
     input_choice = input("Enter your choice (1 for text, 2 for image): ")
     if input_choice == '1':
         input_text = input("Enter your text: ")
-        best_match = find_best_match(input_text, data, tokenizer, text_model, device)
+        best_match = find_best_match(input_text, data, tokenizer, text_model, device, description_embeddings)
         if best_match:
             image_path = os.path.join(image_folder, best_match['filename'])
             img = Image.open(image_path)
@@ -129,9 +129,7 @@ if __name__ == "__main__":
             # 计算文本和图像的相似度
             combined_similarities = []
             for i, filename in enumerate(tqdm(filenames, desc="Calculating combined similarities")):
-                description = next(item['content'] for item in data if item['filename'] == filename)
-                description_embedding = encode_text(description, tokenizer, text_model, device)
-                text_similarity = np.dot(input_text_embedding, description_embedding.T).item()
+                text_similarity = np.dot(input_text_embedding, description_embeddings[i].T).item()
                 combined_similarity = text_similarity + similarities[0][i]
                 combined_similarities.append(combined_similarity)
             
