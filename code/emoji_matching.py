@@ -1,11 +1,11 @@
 import os
 import numpy as np
-from tqdm import tqdm
+import torch
 from transformers import BertTokenizer, BertModel
 from sklearn.metrics.pairwise import cosine_similarity
-import torch
-import matplotlib.pyplot as plt
+from tqdm import tqdm
 from PIL import Image
+import matplotlib.pyplot as plt
 from data_utils import load_data, load_and_preprocess_image
 from model import MultiModalModel
 import base64
@@ -65,25 +65,11 @@ def find_best_match(input_text, data, tokenizer, model, device):
     
     return best_match
 
-# 提取所有表情包图片的特征
-def extract_image_features(emo_folder, data, model, device):
-    features = []
-    filenames = []
-
-    for item in tqdm(data, desc="Processing emoji images"):
-        img_path = os.path.join(emo_folder, item['filename'])
-        img_tensor = load_and_preprocess_image(img_path, device=device)
-        with torch.no_grad():
-            feature = model(img_tensor).flatten().cpu().numpy()  # 提取特征并将结果移回CPU
-        features.append(feature)
-        filenames.append(item['filename'])
-
-    features = np.array(features)
-    return features, filenames
-
 if __name__ == "__main__":
     json_path = "../emo-visual-data/data.json"
     image_folder = "../emo-visual-data/emo"
+    features_path = "../model/emo_features.npy"
+    filenames_path = "../model/emo_filenames.npy"
     ak = "EPQ2BDPM3AWRYOEBPVMJ"  # 这里替换为您的华为云 AK
     sk = "XEfYiba9yFUXLMc27aLI86MnVM9krZuLPoXcLvDT"  # 这里替换为您的华为云 SK
 
@@ -92,8 +78,8 @@ if __name__ == "__main__":
     print("Data loaded.")
 
     print("Loading tokenizer and model...")
-    tokenizer = BertTokenizer.from_pretrained('bert-base-chinese', cache_dir='./cache')
-    text_model = BertModel.from_pretrained('bert-base-chinese', cache_dir='./cache')
+    tokenizer = BertTokenizer.from_pretrained('bert-base-chinese', cache_dir='./cache',local_files_only=True)
+    text_model = BertModel.from_pretrained('bert-base-chinese', cache_dir='./cache',local_files_only=True)
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     text_model.to(device)
@@ -102,6 +88,12 @@ if __name__ == "__main__":
     model = MultiModalModel().to(device)
     model.load_state_dict(torch.load('../model/model_weights.pth'))
     model.eval()
+
+    # 加载提取的图像特征和文件名
+    print("Loading pre-extracted features and filenames...")
+    features = np.load(features_path)
+    filenames = np.load(filenames_path)
+    print("Features and filenames loaded.")
 
     input_choice = input("Enter your choice (1 for text, 2 for image): ")
     if input_choice == '1':
@@ -122,10 +114,6 @@ if __name__ == "__main__":
         words_block_list = detect_text_in_image(input_img_path, ak, sk)
         has_text = len(words_block_list) > 0 if words_block_list else False
         print("Text detection completed.")
-        
-        print("Extracting image features...")
-        features, filenames = extract_image_features(image_folder, data, model, device)
-        print("Image features extracted.")
 
         input_img_tensor = load_and_preprocess_image(input_img_path, device=device)
         with torch.no_grad():
