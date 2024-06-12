@@ -31,8 +31,8 @@ def detect_text_in_image(image_path, ak, sk):
         return None
 
 if __name__ == "__main__":
-    ak = "EPQ2BDPM3AWRYOEBPVMJ"
-    sk = "XEfYiba9yFUXLMc27aLI86MnVM9krZuLPoXcLvDT"
+    ak = ""
+    sk = ""
     img_path = "../img/1.jpg"
 
     words_block_list = detect_text_in_image(img_path, ak, sk)
