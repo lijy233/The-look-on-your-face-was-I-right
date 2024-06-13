@@ -7,47 +7,14 @@ from tqdm import tqdm
 from PIL import Image
 import matplotlib.pyplot as plt
 import streamlit as st
-from data_utils import load_data, load_and_preprocess_image
+import cv2
+import matplotlib
+matplotlib.use('TkAgg')
 from model import MultiModalModel
-import base64
-from huaweicloudsdkcore.auth.credentials import BasicCredentials
-from huaweicloudsdkocr.v1.region.ocr_region import OcrRegion
-from huaweicloudsdkcore.exceptions import exceptions
-from huaweicloudsdkocr.v1 import *
-
-
-# 华为云 OCR 函数
-def detect_text_in_image(image_path, ak, sk):
-    credentials = BasicCredentials(ak, sk)
-    client = OcrClient.new_builder() \
-        .with_credentials(credentials) \
-        .with_region(OcrRegion.value_of("cn-north-4")) \
-        .build()
-
-    try:
-        with open(image_path, "rb") as image_file:
-            image_base64 = base64.b64encode(image_file.read()).decode('utf-8')
-
-        request = RecognizeWebImageRequest()
-        request.body = WebImageRequestBody(
-            image=image_base64
-        )
-        response = client.recognize_web_image(request)
-        return response.result.words_block_list
-    except exceptions.ClientRequestException as e:
-        print(e.status_code)
-        print(e.request_id)
-        print(e.error_code)
-        print(e.error_msg)
-        return None
-
-
-# 加载和预处理文本的函数
-def encode_text(text, tokenizer, model, device):
-    inputs = tokenizer(text, return_tensors='pt', truncation=True, max_length=512, padding=True).to(device)
-    outputs = model(**inputs)
-    return outputs.last_hidden_state.mean(dim=1).detach().cpu().numpy()
-
+from data_utils import load_data, load_and_preprocess_image
+from text_utils import detect_text_in_image, encode_text
+from camera_utils import capture_image_from_camera
+from emotion_analysis import analyze_sentiment
 
 # 加载模型和数据
 def load_model_and_data():
@@ -77,13 +44,15 @@ def load_model_and_data():
 
     return data, tokenizer, text_model, device, model, description_embeddings, ak, sk, image_folder, features, filenames
 
-
 # 主应用程序
 def main():
-    st.title('你的表情我猜对了吗？')
-    st.write('这是一个通过文本或图片匹配相应表情包的项目。')
+    # 添加logo图
+    logo_path = "../logo/bee-705412_1280.webp"
+    st.sidebar.image(logo_path, width=200)
+    st.title('你的表情 ，我猜对了吗？')
+    st.write('欢迎体验我们的表情包匹配项目！在这里，你可以通过输入一段文字来描述你此刻的心情，我们将为你猜测并匹配一张符合你心情的表情包图片。当然，你也可以直接上传一张表情包图片，我们会生成一张与之相似的表情包图片。快来试试吧，让我们帮你找到最贴合心情的表情包！')
 
-    choice = st.selectbox('请选择一种方式匹配表情包:', ('通过文字匹配', '通过图片匹配'))
+    choice = st.sidebar.selectbox('请选择一种方式匹配表情包:', ('通过文字匹配', '通过图片匹配', '通过摄像头匹配'))
 
     if choice == '通过文字匹配':
         st.subheader('通过文字匹配')
@@ -105,7 +74,15 @@ def main():
             if best_match:
                 image_path = os.path.join(image_folder, best_match['filename'])
                 img = Image.open(image_path)
-                st.image(img, caption='匹配的表情包:', use_column_width=True)
+                st.image(img, caption='匹配的表情包', use_column_width=True)
+                # 情感分析
+                sentiment = analyze_sentiment(input_text)
+                st.write(f"情感分析结果: {sentiment}")
+
+                if sentiment == "Positive":
+                    st.write("你现在的心情看起来很积极！希望这张表情包能传递你的快乐。")
+                else:
+                    st.write("你现在的心情似乎有些消极。这张表情包也许能帮你表达情绪。")
             else:
                 st.write("没有找到匹配的描述。")
 
@@ -147,12 +124,24 @@ def main():
             matched_img_path = os.path.join(image_folder, most_similar_image)
             matched_img = Image.open(matched_img_path)
 
-            st.image(input_img, caption='上传的图片:', use_column_width=True)
-            st.image(matched_img, caption='匹配的表情包:', use_column_width=True)
+            st.image(input_img, caption='上传的图片', use_column_width=True)
+            st.image(matched_img, caption='匹配的表情包', use_column_width=True)
+
+
+    elif choice == '通过摄像头匹配':
+
+        st.subheader('通过摄像头匹配')
+        start_camera = st.button("请点击来允许摄像头拍摄并匹配")
+        if start_camera:
+
+             # 加载模型和数据
+            data, tokenizer, text_model, device, model, description_embeddings, ak, sk, image_folder, features, filenames = load_model_and_data()
+            # 加载OpenCV的Haar级联分类器
+            face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+             # 捕捉摄像头图像并匹配表情包
+            capture_image_from_camera(face_cascade, text_model, model, device, tokenizer, description_embeddings, filenames,
+                                  ak, sk, image_folder, features)
 
     else:
         st.write("无效的选择。")
-
-
-if __name__ == "__main__":
-    main()
+        
