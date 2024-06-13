@@ -37,11 +37,11 @@ $ pip install -r requirements.txt
 
 进入 ./code目录下，打开终端，输入如下命令即可开始游戏。
 
-> 第一次运行速度会很慢，这是因为要载入bert预训练模型，之后就会快的飞起。
-
 ```bash
 $ streamlit run run.py
 ```
+
+> 第一次运行速度会很慢，这是因为要载入bert预训练模型，之后就会快的飞起。
 
 ---
 
