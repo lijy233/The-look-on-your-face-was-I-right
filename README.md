@@ -25,10 +25,18 @@
 
 # Quick Start
 
+执行以下命令安装所需依赖库。
+
+```bash
+$ pip install -r requirements.txt
+```
+
+下载 [cache文件夹](https://pan.baidu.com/s/1A_uuIq1A1n2_E6BwFNrS9w?pwd=1314)，将cache文件夹存放到 ./code 目录下。
+
 进入 ./code目录下，打开终端，输入如下命令即可开始游戏。
 
 ```bash
-streamlit run run.py
+$ streamlit run run.py
 ```
 
 ---
