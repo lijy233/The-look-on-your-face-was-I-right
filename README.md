@@ -18,10 +18,20 @@
 ![img](./img/p1.jpg)
 
 第二种
-![img](./img/p2.jpg)
+![img](./img/p2.png)
 
 第三种
 ![img](./img/p3.jpg)
+
+# Quick Start
+
+进入 ./code目录下，打开终端，输入如下命令即可开始游戏。
+
+```bash
+streamlit run run.py
+```
+
+---
 
 # 项目实现
 
@@ -37,17 +47,23 @@ graph LR;
 
 项目文件说明：
 
-- `data_utils.py`：用于加载和预处理图片数据集，包括加载JSON格式的数据、定义图片的预处理方法、以及一个自定义数据集类。
+- `data_utils.py`：加载和预处理图片数据集。
 
 - `model.py`：定义了一个基于ResNet-18的多模态神经网络模型，用于提取图像的特征。
 
-- `train.py`：进行模型训练，加载图像数据集并使用预训练的ResNet-18模型在GPU上进行特征提取训练，最后保存模型权重。
+- `train.py`：进行模型训练，使用预训练的ResNet-18模型进行特征提取训练，保存模型权重。
 
-- `extract_features.py`：提取图像特征和文本描述嵌入，并将这些特征保存为NumPy数组。
+- `extract_features.py`：提取图像特征和文本描述嵌入。
 
-- `emoji_matching.py`：实现了一个应用程序，通过输入文本或图像检测文本并结合图像特征，来寻找和显示最匹配的表情符号。
+- `text_utils.py`: 文本编码和OCR。
 
-- `visual.py`：一个使用Streamlit构建的应用程序，通过用户输入文本、上传图片或使用摄像头捕捉图像来匹配并显示最符合心情的表情包。
+- `camera_utils.py`: 摄像头捕获图像、检测面部、执行文本识别以及根据提取的特征匹配图像。
+
+- `emotion_analysis.py`: 情感分析。
+
+- `visual.py`：使用Streamlit创建用户交互界面。
+
+- `run.py`：游戏，启动！
 
 # 数据集
 
