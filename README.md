@@ -105,11 +105,6 @@ graph TD;
     R --> S[计算相似度]
     S --> T[找到最匹配的表情包]
     T --> U[显示捕捉的图片和匹配的表情包]
-    
-    style A fill:#f9f,stroke:#333,stroke-width:4px;
-    style I fill:#bff,stroke:#333,stroke-width:4px;
-    style O fill:#bff,stroke:#333,stroke-width:4px;
-    style U fill:#bff,stroke:#333,stroke-width:4px;
 ```
 
 # 写在最后
