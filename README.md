@@ -31,7 +31,7 @@
 $ pip install -r requirements.txt
 ```
 
-下载[emo-visual-data](https://github.com/LLM-Red-Team/emo-visual-data)数据集，解压缩后放到当前目录下。
+下载[emo-visual-data](https://drive.google.com/file/d/1RnDMCnNrDU2RTsZIywW1NQKM2tkNRFdC)数据集，解压缩后放到当前目录下。
 
 下载 [cache文件夹](https://pan.baidu.com/s/1A_uuIq1A1n2_E6BwFNrS9w?pwd=1314)，将cache文件夹存放到 ./code 目录下。
 
