@@ -35,7 +35,7 @@ def load_model_and_data():
     text_model.to(device)
 
     model = MultiModalModel().to(device)
-    model.load_state_dict(torch.load('../model/model_weights.pth'))
+    model.load_state_dict(torch.load('../model/model_weights.pth', map_location=device))
     model.eval()
 
     features = np.load(features_path)
@@ -144,4 +144,3 @@ def main():
 
     else:
         st.write("无效的选择。")
-        
