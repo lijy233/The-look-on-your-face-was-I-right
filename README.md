@@ -21,7 +21,7 @@
 ![img](./img/p2.png)
 
 第三种
-![img](./img/p3.jpg)
+![img](./img/p3.png)
 
 # Quick Start
 
