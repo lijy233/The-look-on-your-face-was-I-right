@@ -37,7 +37,7 @@ def load_model_and_data():
     text_model.to(device)
 
     model = MultiModalModel().to(device)
-    model.load_state_dict(torch.load('../model/model_weights.pth'))
+    model.load_state_dict(torch.load('../model/model_weights.pth', map_location=device))
     model.eval()
 
     features = np.load(features_path)
@@ -56,7 +56,7 @@ def main():
 
     choice = st.sidebar.selectbox('请选择一种方式匹配表情包:', ('通过文字匹配', '通过图片匹配', '通过摄像头匹配'))
     args = sys.argv
-    arguments = args[1]  # 参数
+    arguments = args[1] if len(args) > 1 else True
 
     if choice == '通过文字匹配':
         st.subheader('通过文字匹配')
