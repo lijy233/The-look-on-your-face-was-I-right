@@ -20,7 +20,7 @@
 ![img](./img/p1.gif)
 
 第二种
-![img](./img/p2.png)
+![img](./img/p2.gif)
 
 第三种
 ![img](./img/p3.gif)
