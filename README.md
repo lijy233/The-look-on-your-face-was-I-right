@@ -65,7 +65,7 @@ graph LR;
 
 - `model.py`：定义了一个基于ResNet-18的多模态神经网络模型，用于提取图像的特征。
 
-- `train.py`：进行模型训练，使用预训练的ResNet-18模型进行特征提取训练，保存模型权重。
+- `train.py`：使用预训练的ResNet-18模型进行特征提取训练，保存模型权重。
 
 - `extract_features.py`：提取图像特征和文本描述嵌入。
 
@@ -75,9 +75,9 @@ graph LR;
 
 - `emotion_analysis.py`: 情感分析。
 
-- `BLUE.py`：计算BLEU值，通过比较输入文本与匹配文本的n-gram重叠来评估匹配结果的质量。
+- `BLUE.py`：计算BLEU值。
 
-- `visual.py`：使用Streamlit创建用户交互界面。
+- `visual.py`：创建用户交互界面。
 
 - `run.py`：游戏，启动！
 
