@@ -3,7 +3,7 @@ from transformers import BertTokenizer, BertForSequenceClassification
 
 def analyze_sentiment(text):
     # 尝试从本地加载模型
-    model_path = '../model/'
+    model_path = './cache/roberta-base-finetuned-jd-binary-chinesemodel/'
     try:
         tokenizer = BertTokenizer.from_pretrained(model_path)
         model = BertForSequenceClassification.from_pretrained(model_path)
@@ -24,11 +24,3 @@ def analyze_sentiment(text):
         return "Negative"
     else:
         return "Positive"
-
-def main():
-    input_text = "待分析的文本内容"  # 这里替换为你需要分析的文本
-    sentiment = analyze_sentiment(input_text)
-    print(f"Sentiment: {sentiment}")
-
-if __name__ == "__main__":
-    main()
