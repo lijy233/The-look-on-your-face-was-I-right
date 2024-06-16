@@ -75,6 +75,8 @@ graph LR;
 
 - `emotion_analysis.py`: 情感分析。
 
+- `BLUE.py`：计算BLEU值，通过比较输入文本与匹配文本的n-gram重叠来评估匹配结果的质量。
+
 - `visual.py`：使用Streamlit创建用户交互界面。
 
 - `run.py`：游戏，启动！
